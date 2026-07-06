@@ -1,6 +1,6 @@
 import { fetchWiktionaryWikitext } from './wiktionary';
 
-const CACHE_KEY = 'idiomatic-wiktionary-synonyms';
+const CACHE_KEY = 'idiomatrix-wiktionary-synonyms';
 
 // Wiktionary language-section headings, keyed by our languageId
 const LANGUAGE_SECTIONS: Record<string, string> = {

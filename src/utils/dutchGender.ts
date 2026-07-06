@@ -1,6 +1,6 @@
 import { fetchWiktionaryWikitext } from './wiktionary';
 
-const CACHE_KEY = 'idiomatic-dutch-gender';
+const CACHE_KEY = 'idiomatrix-dutch-gender';
 
 type CacheValue = 'de' | 'het' | 'unknown';
 

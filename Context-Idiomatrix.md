@@ -1,8 +1,8 @@
-# Idiomatic — Project Reference
+# Idiomatrix — Project Reference
 
 ## What is this?
 
-Idiomatic is a language-learning web app (inspired by Duolingo) where users can learn **4 languages** (Dutch, Spanish, English, German) through spaced-repetition flashcards, an article checker (with a de/het-style quiz mode), a synonym lookup, a verb tenses reference, and a prepositions fill-in-the-blank quiz — all backed by curated dictionaries with a live Wiktionary fallback for words outside them. Built with React + TypeScript + Vite + Tailwind CSS v4.
+Idiomatrix is a language-learning web app (inspired by Duolingo) where users can learn **4 languages** (Dutch, Spanish, English, German) through spaced-repetition flashcards, an article checker (with a de/het-style quiz mode), a synonym lookup, a verb tenses reference, and a prepositions fill-in-the-blank quiz — all backed by curated dictionaries with a live Wiktionary fallback for words outside them. Built with React + TypeScript + Vite + Tailwind CSS v4.
 
 ---
 
@@ -172,7 +172,7 @@ All three dictionary-backed features share `src/utils/wiktionary.ts`, whose `fet
 Common pattern across all three:
 - Isolate the correct language section first (`==Dutch==`, `==Spanish==`, etc.) so results aren't cross-contaminated between languages sharing a page
 - 400ms debounce before firing the lookup from the UI
-- Results cached permanently in `localStorage` (`idiomatic-dutch-gender`, `idiomatic-wiktionary-synonyms`, `idiomatic-wiktionary-translations`), including a cached "not found" sentinel so repeat misses don't re-hit the API
+- Results cached permanently in `localStorage` (`idiomatrix-dutch-gender`, `idiomatrix-wiktionary-synonyms`, `idiomatrix-wiktionary-translations`), including a cached "not found" sentinel so repeat misses don't re-hit the API
 - Known limitation: parsing is page-level, not sense-level, so a word with multiple parts of speech can occasionally surface synonyms/glosses for the wrong sense (e.g. German "schnell" the adverb vs. adjective) when the primary sense lacks inline data
 
 ---
@@ -405,13 +405,13 @@ npm run preview # preview production build
 
 ## Deployment
 
-- **Hosting**: Vercel, free Hobby tier. Vercel project renamed to `idiomatic` (dashboard: `vercel.com/remerkle-9465s-projects/idiomatic`). Renaming the project name does **not** automatically migrate the `*.vercel.app` domain — check the project's **Settings → Domains** tab for the current live URL; `pentalingo.vercel.app` may still be the active domain until `idiomatic.vercel.app` is explicitly added there
-- **Source**: GitHub repo `remerkle/idiomatic` (renamed from `remerkle/pentalingo` via `gh repo rename`; GitHub auto-redirects the old URL), connected to Vercel's Git integration
+- **Hosting**: Vercel, free Hobby tier. Vercel project name is being updated to `idiomatrix` (previously `idiomatic`, previously `pentalingo`) — dashboard: `vercel.com/remerkle-9465s-projects/idiomatrix` once renamed. Renaming the project name does **not** automatically migrate the `*.vercel.app` domain — check the project's **Settings → Domains** tab for the actual current live URL, since it may still be `pentalingo.vercel.app` or `idiomatic.vercel.app` until a new domain is explicitly added
+- **Source**: GitHub repo `remerkle/idiomatrix` (renamed from `remerkle/idiomatic`, which was itself renamed from `remerkle/pentalingo`, via `gh repo rename`; GitHub auto-redirects old URLs), connected to Vercel's Git integration
 - **Auto-deploy**: every push to `main` triggers a production deployment automatically (no manual `vercel deploy` needed going forward)
 - **Vercel project**: linked by project ID in `.vercel/project.json` (gitignored) — renaming the GitHub repo does not break this link since Vercel tracks it by ID, not name
 
-### Pentalingo → Idiomatic rename (2026-07-06)
-The app was renamed from Pentalingo to Idiomatic. What changed and what's still pending:
-- **Done**: every in-code/doc reference (header logo, page title, `package.json`/lockfile name, localStorage cache key prefixes, this file's own name and content), the GitHub repo (`remerkle/pentalingo` → `remerkle/idiomatic`), and the Vercel project name (dashboard-side, done by the user)
-- **Not done — local folder**: the project's local folder on disk is still named `pentalingo` (`C:\Users\rolan\Documents\Claude\Code\pentalingo`). Renaming it is blocked because it's the active VS Code workspace root — VS Code (and Claude Code's own extension host, which runs inside that same workspace) holds an open handle on the directory, so Windows refuses the rename with a "file in use" error. To finish this: close the folder/window in VS Code, rename the folder outside VS Code (Explorer or a terminal not rooted inside it), then reopen VS Code at the new path. Nothing else depends on this — it's cosmetic only.
-- **Not confirmed — live domain**: whether the public URL is `pentalingo.vercel.app` or `idiomatic.vercel.app` depends on the project's Domains settings, which weren't confirmed as of this rename (see the Domains note above).
+### Naming history
+The app has been renamed twice: **Pentalingo → Idiomatic → Idiomatrix**. Each rename followed the same process and hit the same recurring snag:
+- **Done each time**: every in-code/doc reference (header logo, page title, `package.json`/lockfile name, localStorage cache key prefixes, this file's own name and content) and the GitHub repo rename via `gh repo rename`
+- **Recurring blocker — local folder**: the project's local folder on disk is still named `pentalingo` (`C:\Users\rolan\Documents\Claude\Code\pentalingo`), never successfully renamed through either round. It's the active VS Code workspace root — VS Code (and Claude Code's own extension host, which runs inside that same workspace) holds an open handle on the directory, so Windows refuses the rename with a "file in use" error both times. To finish this: close the folder/window in VS Code, rename the folder outside VS Code (Explorer or a terminal not rooted inside it) to the current name (`idiomatrix`), then reopen VS Code at the new path. Nothing else depends on this — it's cosmetic only.
+- **Vercel project/domain**: renamed dashboard-side by the user each time (not something achievable via API in this session — no live Vercel API access). The actual live `*.vercel.app` domain lags behind the project-name rename unless a new domain is explicitly added under Settings → Domains, so don't assume the live URL matches the current app name without checking.

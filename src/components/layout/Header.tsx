@@ -25,7 +25,7 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-[#F7F4EE] border-b border-[#E3DFD4] overflow-x-hidden">
       <div className="max-w-4xl mx-auto px-3 sm:px-4 h-16 flex items-center gap-2">
         <NavLink to="/" className="shrink-0 text-lg sm:text-2xl font-serif font-semibold text-[#1B1A17] tracking-tight">
-          Idiomatic
+          Idiomatrix
         </NavLink>
 
         <div className="relative flex-1 min-w-0">
