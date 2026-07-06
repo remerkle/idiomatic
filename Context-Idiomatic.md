@@ -405,7 +405,13 @@ npm run preview # preview production build
 
 ## Deployment
 
-- **Hosting**: Vercel, free Hobby tier — live at **https://idiomatic.vercel.app** (renamed from `pentalingo.vercel.app`; the Vercel project name/domain change is a manual step in the Vercel dashboard, not something the CLI/git side of a rename touches)
+- **Hosting**: Vercel, free Hobby tier. Vercel project renamed to `idiomatic` (dashboard: `vercel.com/remerkle-9465s-projects/idiomatic`). Renaming the project name does **not** automatically migrate the `*.vercel.app` domain — check the project's **Settings → Domains** tab for the current live URL; `pentalingo.vercel.app` may still be the active domain until `idiomatic.vercel.app` is explicitly added there
 - **Source**: GitHub repo `remerkle/idiomatic` (renamed from `remerkle/pentalingo` via `gh repo rename`; GitHub auto-redirects the old URL), connected to Vercel's Git integration
 - **Auto-deploy**: every push to `main` triggers a production deployment automatically (no manual `vercel deploy` needed going forward)
 - **Vercel project**: linked by project ID in `.vercel/project.json` (gitignored) — renaming the GitHub repo does not break this link since Vercel tracks it by ID, not name
+
+### Pentalingo → Idiomatic rename (2026-07-06)
+The app was renamed from Pentalingo to Idiomatic. What changed and what's still pending:
+- **Done**: every in-code/doc reference (header logo, page title, `package.json`/lockfile name, localStorage cache key prefixes, this file's own name and content), the GitHub repo (`remerkle/pentalingo` → `remerkle/idiomatic`), and the Vercel project name (dashboard-side, done by the user)
+- **Not done — local folder**: the project's local folder on disk is still named `pentalingo` (`C:\Users\rolan\Documents\Claude\Code\pentalingo`). Renaming it is blocked because it's the active VS Code workspace root — VS Code (and Claude Code's own extension host, which runs inside that same workspace) holds an open handle on the directory, so Windows refuses the rename with a "file in use" error. To finish this: close the folder/window in VS Code, rename the folder outside VS Code (Explorer or a terminal not rooted inside it), then reopen VS Code at the new path. Nothing else depends on this — it's cosmetic only.
+- **Not confirmed — live domain**: whether the public URL is `pentalingo.vercel.app` or `idiomatic.vercel.app` depends on the project's Domains settings, which weren't confirmed as of this rename (see the Domains note above).
