@@ -24,19 +24,20 @@ src/
 ├── components/
 │   ├── ui/                  # Reusable primitives
 │   │   ├── Button.tsx       # Primary (solid ink)/secondary (outlined)/danger/ghost pill variants, rounded-full
-│   │   ├── Card.tsx         # Flat bordered card; `accent` renders as a left stripe; `tinted` renders a solid accent-colored block (no border)
+│   │   ├── Card.tsx         # Flat bordered card; `accent` renders as a left stripe; `tinted` renders a solid accent-colored block (no border) — currently unused since the home page's feature-highlight cards were removed, but kept as a supported variant
 │   │   ├── ProgressBar.tsx  # Filled bar with configurable color and optional % label
 │   │   └── Badge.tsx        # Pill badge in green/orange/blue/red/purple/yellow (muted palette)
 │   ├── layout/
-│   │   ├── Header.tsx       # Sticky top nav with logo, nav links, streak 🔥 and XP ⚡ display; nav scrolls horizontally with fade cues on mobile
+│   │   ├── Header.tsx       # Sticky top bar: "Idiomatrix" logo + a single prominent "Dashboard" pill link, streak 🔥 and XP ⚡ display on the right — no other nav links (removed in favor of the per-language Learn menu)
 │   │   └── Layout.tsx       # Wraps all pages; Header + max-w-4xl centered main content
 │   ├── articles/
 │   │   └── ArticleQuiz.tsx  # Self-contained article quiz (10 questions, score, XP), all 4 languages, used by ArticlesPage
 │   └── prepositions/
 │       └── PrepositionQuiz.tsx # Self-contained fill-in-the-blank quiz (10 questions, score, XP), all 4 languages, used by PrepositionsPage
 ├── pages/
-│   ├── HomePage.tsx         # Landing: hero tagline, language picker grid, 3 feature cards
-│   ├── DashboardPage.tsx    # Stats (streak, XP, level), daily goal progress, continue-to-flashcards CTA, language overview
+│   ├── HomePage.tsx         # Landing page: nothing but the "Choose your language" picker grid; picking a language navigates to /learn
+│   ├── LearnPage.tsx        # Per-language section menu (Flashcards, Articles, Synonyms, Verbs, Prepositions) shown after picking a language on the home page or Dashboard
+│   ├── DashboardPage.tsx    # Stats (streak, Total XP, Daily XP), daily goal progress, a "Continue Learning" language-picker grid (same 4 cards as Home) to jump back into /learn
 │   ├── FlashcardsPage.tsx   # 5 random flippable cards at a time; flipping = reviewed (green + XP); add-a-word via Wiktionary
 │   ├── ArticlesPage.tsx     # Article checker: type a noun → see correct article, gender color-coded; "Look up" / article quiz mode toggle for all 4 languages
 │   ├── SynonymsPage.tsx     # Type a word → see synonyms, sourced from curated dict or Wiktionary
@@ -78,8 +79,9 @@ src/
 
 | Route | Page | Description |
 |-------|------|-------------|
-| `/` | HomePage | Hero, language picker, feature highlights |
-| `/dashboard` | DashboardPage | Streak, XP, level, daily goal, language progress |
+| `/` | HomePage | Just the language picker — picking a language navigates to `/learn` |
+| `/learn` | LearnPage | Per-language menu of the 5 learning sections (Flashcards/Articles/Synonyms/Verbs/Prepositions — Dashboard excluded, it's in the header); navigating here always sets `selectedLanguage` first (from Home or Dashboard) |
+| `/dashboard` | DashboardPage | Streak, Total XP, Daily XP, daily goal, "Continue Learning" language picker (→ `/learn`) |
 | `/flashcards` | FlashcardsPage | 5-card grid pulled randomly from the combined dictionary pool |
 | `/articles` | ArticlesPage | Type a noun to look up its correct article; gender color-coded |
 | `/synonyms` | SynonymsPage | Type a word to look up synonyms |
@@ -120,17 +122,17 @@ Redesigned to an Anthropic.com-inspired editorial look (warm neutrals, serif hea
 Each language keeps its original hue family (nl=blue, es=orange, en=green, de=red), just desaturated/warmed — defined once in `LANGUAGES` (`src/data/languages.ts`) and cascaded everywhere via the `color` field. Tokens live in `src/index.css` under `@theme { }` and are usable as Tailwind utilities (e.g. `bg-accent`); most components reference the raw hex directly via arbitrary-value classes (`text-[#1B1A17]`) rather than the token name, matching the pre-existing codebase convention.
 
 ### Visual Style
-- **Cards**: flat `bg-white border border-[#E3DFD4]`, `rounded-2xl` — no 3D lift effect. The `accent` prop renders as a `border-l-4` stripe; a `tinted` card renders as a solid accent-colored block with no border, used for hero/feature tiles (e.g. HomePage's 3 feature cards) rather than list items
+- **Cards**: flat `bg-white border border-[#E3DFD4]`, `rounded-2xl` — no 3D lift effect. The `accent` prop renders as a `border-l-4` stripe; a `tinted` card renders as a solid accent-colored block with no border (currently unused — was for hero/feature tiles before those were removed from the home page)
 - **Buttons**: `rounded-full` pills, no border-b-4 press effect — `primary` = solid ink, `secondary` = ink-outlined, `danger` = solid error-color
 - **Language/mode tabs**: `rounded-full` pill buttons across all pages (Articles, Synonyms, Verbs, Prepositions), replacing the old rectangular `rounded-xl` tabs
 - **Headings**: `font-serif font-semibold tracking-tight` in place of `font-black` Nunito
 - **No hand-drawn illustration accents** — visual identity comes from type/color/shape alone (a deliberate scope decision, not an oversight)
 
 ### Mobile Responsiveness
-- **Header** (`src/components/layout/Header.tsx`): logo and streak/XP are `shrink-0` (pinned); the nav link row is the only flexible piece, wrapped in a `relative min-w-0` container so it can shrink and scroll independently instead of forcing the whole page wider than the viewport
-- Nav scrolling uses `overflow-x-auto` with the scrollbar hidden (`[scrollbar-width:none] [&::-webkit-scrollbar]:hidden`); scroll-affordance fade gradients are rendered on whichever edge(s) still have off-screen content, tracked via `scrollLeft`/`scrollWidth` on scroll and resize
-- `html, body { overflow-x: hidden }` in `src/index.css` is a safety net against any future element forcing page-wide horizontal scroll — the header bug that prompted this was exactly that: content wider than viewport with no fallback, so the whole page scrolled sideways instead of just the nav
+- **Header** (`src/components/layout/Header.tsx`): now just three `shrink-0` pieces (logo, "Dashboard" pill, streak/XP) plus a spacer — the old horizontally-scrolling multi-link nav (and its fade-gradient/scroll-tracking logic) was removed once the top nav was pared down to a single Dashboard link, so there's nothing left that can overflow the header's width
+- `html, body { overflow-x: hidden }` in `src/index.css` remains as a general safety net against any element forcing page-wide horizontal scroll, independent of the header
 - Text sizes/padding/gaps in the header step up at the `sm:` breakpoint (e.g. `text-xs sm:text-sm`, `px-2 sm:px-4`) to stay usable on narrow phones
+- Grids that need to stack on narrow phones (e.g. the old home-page feature cards) use `grid-cols-1 sm:grid-cols-N` rather than a fixed column count — a real bug was hit here: a fixed `grid-cols-3` squeezed columns so narrow that wrapped text overflowed its card's colored background on a ~390px viewport
 
 ---
 
@@ -156,6 +158,19 @@ Defined in `src/data/languages.ts`.
 - `addXp(amount)` — increment xp + todayXp
 
 State is in-memory only (resets on refresh). Persistence (localStorage or backend) is not yet implemented.
+
+---
+
+## Navigation & the Learn Menu
+
+The app funnels every language-specific feature through a single choice point rather than exposing them all in persistent top-level nav:
+
+- **Home (`/`)** shows only the "Choose your language" grid (4 cards from `LANGUAGES`). Clicking one calls `setSelectedLanguage(lang)` then navigates to `/learn`.
+- **Learn (`/learn`, `src/pages/LearnPage.tsx`)** shows the selected language's flag/name and a `SECTIONS` grid (defined inline in the file) linking to Flashcards, Articles, Synonyms, Verbs, and Prepositions — each card tinted with `selectedLanguage.color`. Dashboard is deliberately excluded from this list since it lives in the header instead.
+- **Dashboard (`/dashboard`)** has its own "Continue Learning" grid — the same 4 language cards as Home — so a learner already on Dashboard can jump straight back into `/learn` for whichever language, without detouring through Home.
+- **Header** now only ever links to `/dashboard` (a prominent pill button next to the "Idiomatrix" logo); the 5 feature routes (Flashcards/Articles/Synonyms/Verbs/Prepositions) are reachable only via the Learn menu, not from persistent nav.
+
+This replaced an earlier design where Home had a hero + 3 feature-highlight cards, and the header had a full 6-link nav (Dashboard/Flashcards/Articles/Synonyms/Verbs/Prepositions) always visible — both were pared down over several iterations to push language-specific navigation through the Learn menu instead.
 
 ---
 
