@@ -64,3 +64,13 @@ export type PrepositionExercise = {
   distractors: [string, string];
   translation: string;
 };
+
+export type PronominalVerbExercise = {
+  id: string;
+  combo: string;             // e.g. "houden van"
+  comboTranslation: string;  // e.g. "to like, be fond of"
+  sentence: string;          // Dutch sentence with exactly two "___" blanks
+  blank1: { correct: string; distractors: [string, string] }; // always "er" vs. "daar"/"hier"
+  blank2: { correct: string; distractors: [string, string] }; // the fixed preposition vs. two other real prepositions
+  guide: { en: string; es: string; de: string }; // completed-sentence translation, non-Dutch languages only
+};

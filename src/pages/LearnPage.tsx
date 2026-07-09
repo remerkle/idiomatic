@@ -10,9 +10,12 @@ const SECTIONS = [
   { to: '/prepositions', emoji: '🧩', title: 'Prepositions', desc: 'Fill-in-the-blank quiz' },
 ];
 
+const PRONOMINAL_SECTION = { to: '/pronominal-verbs', emoji: '🔗', title: 'Pronominal Verbs', desc: 'er + preposition constructions' };
+
 export function LearnPage() {
   const navigate = useNavigate();
   const { selectedLanguage } = useApp();
+  const sections = selectedLanguage.id === 'nl' ? [...SECTIONS, PRONOMINAL_SECTION] : SECTIONS;
 
   return (
     <div className="flex flex-col gap-6">
@@ -23,7 +26,7 @@ export function LearnPage() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        {SECTIONS.map(section => (
+        {sections.map(section => (
           <Card
             key={section.to}
             onClick={() => navigate(section.to)}
