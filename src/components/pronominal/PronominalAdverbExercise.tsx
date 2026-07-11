@@ -8,15 +8,6 @@ import type { PronominalAdverbExercise as Exercise } from '../../types';
 
 const XP_PER_CORRECT = 5;
 
-function shuffle<T>(items: T[]): T[] {
-  const arr = [...items];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
 function BlankOptions({
   options, correct, selected, onPick,
 }: {
@@ -26,7 +17,7 @@ function BlankOptions({
   onPick: (choice: string) => void;
 }) {
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className={options.length > 1 ? 'grid grid-cols-3 gap-3' : 'flex justify-center'}>
       {options.map(choice => {
         const isCorrect = choice === correct;
         const isSelected = selected === choice;
@@ -41,7 +32,9 @@ function BlankOptions({
             key={choice}
             onClick={() => onPick(choice)}
             disabled={!!selected}
-            className={`py-3 text-base font-semibold rounded-2xl border transition-colors ${style}`}
+            className={`py-3 text-base font-semibold rounded-2xl border transition-colors ${
+              options.length > 1 ? '' : 'px-12'
+            } ${style}`}
           >
             {choice}
           </button>
@@ -60,14 +53,10 @@ export function PronominalAdverbExercise({ exercise, onBack }: { exercise: Exerc
     selectedLanguage.id !== 'nl' ? selectedLanguage.id : 'en'
   );
 
-  const options1 = useMemo(
-    () => shuffle([exercise.blank1.correct, ...exercise.blank1.distractors]),
-    [exercise.id]
-  );
-  const options2 = useMemo(
-    () => shuffle([exercise.blank2.correct, ...exercise.blank2.distractors]),
-    [exercise.id]
-  );
+  // The adverb and preposition were already chosen via the two menus that led here,
+  // so the blanks aren't re-quizzing that choice — only the correct option is offered.
+  const options1 = useMemo(() => [exercise.blank1.correct], [exercise.id]);
+  const options2 = useMemo(() => [exercise.blank2.correct], [exercise.id]);
 
   useEffect(() => {
     setBlank1(null);
