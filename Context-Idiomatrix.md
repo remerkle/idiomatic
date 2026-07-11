@@ -2,7 +2,7 @@
 
 ## What is this?
 
-Idiomatrix is a language-learning web app (inspired by Duolingo) where users can learn **4 languages** (Dutch, Spanish, English, German) through spaced-repetition flashcards, an article checker (with a de/het-style quiz mode), a synonym lookup, a verb tenses reference, and a prepositions fill-in-the-blank quiz — all backed by curated dictionaries with a live Wiktionary fallback for words outside them. Built with React + TypeScript + Vite + Tailwind CSS v4.
+Idiomatrix is a language-learning web app (inspired by Duolingo) where users can learn **4 languages** (Dutch, Spanish, English, German) through spaced-repetition flashcards, an article checker (with a de/het-style quiz mode), synonym and antonym lookups, a verb tenses reference, a prepositions fill-in-the-blank quiz, and (Dutch only) a pronominal-adverbs grammar drill — all backed by curated dictionaries with a live Wiktionary fallback for words outside them. The article/synonym/antonym/verb search bars are cross-language: type a word in any of the 4 languages and jump to its equivalent in whichever language is currently selected. Built with React + TypeScript + Vite + Tailwind CSS v4.
 
 ---
 
@@ -28,7 +28,7 @@ src/
 │   │   ├── ProgressBar.tsx  # Filled bar with configurable color and optional % label
 │   │   └── Badge.tsx        # Pill badge in green/orange/blue/red/purple/yellow (muted palette)
 │   ├── layout/
-│   │   ├── Header.tsx       # Sticky top bar: "Idiomatrix" logo + 6 pill-button nav links (Dashboard/Flashcards/Articles/Synonyms/Verbs/Prepositions), streak 🔥 and XP ⚡ on the right; nav scrolls horizontally with fade cues on mobile since 6 pills don't fit at ~390px
+│   │   ├── Header.tsx       # Sticky top bar: "Idiomatrix" logo + 7 pill-button nav links (Dashboard/Flashcards/Articles/Synonyms/Antonyms/Verbs/Prepositions), streak 🔥 and XP ⚡ on the right; nav scrolls horizontally with fade cues on mobile since 7 pills don't fit at ~390px
 │   │   └── Layout.tsx       # Wraps all pages; Header + max-w-4xl centered main content
 │   ├── articles/
 │   │   └── ArticleQuiz.tsx  # Self-contained article quiz (10 questions, score, XP), all 4 languages, used by ArticlesPage
@@ -38,11 +38,12 @@ src/
 │       └── PronominalAdverbExercise.tsx # Two-blank fill-in-the-blank exercise for one adverb+preposition combo (e.g. waar+over), with a 4-language guide-sentence picker shown upfront as a hint; used by PronominalAdverbsPage
 ├── pages/
 │   ├── HomePage.tsx         # Landing page: nothing but the "Choose your language" picker grid; picking a language navigates to /learn
-│   ├── LearnPage.tsx        # Per-language section menu (Flashcards, Articles, Synonyms, Verbs, Prepositions, + Pronominal Adverbs when Dutch is selected) shown after picking a language on the home page or Dashboard
+│   ├── LearnPage.tsx        # Per-language section menu (Flashcards, Articles, Synonyms, Antonyms, Verbs, Prepositions, + Pronominal Adverbs when Dutch is selected) shown after picking a language on the home page or Dashboard
 │   ├── DashboardPage.tsx    # Stats (streak, Total XP, Daily XP), daily goal progress, a "Continue Learning" language-picker grid (same 4 cards as Home) to jump back into /learn
 │   ├── FlashcardsPage.tsx   # 5 random flippable cards at a time; flipping = reviewed (green + XP); add-a-word via Wiktionary
-│   ├── ArticlesPage.tsx     # Article checker: type a noun → see correct article, gender color-coded; "Look up" / article quiz mode toggle for all 4 languages
-│   ├── SynonymsPage.tsx     # Type a word → see synonyms, sourced from curated dict or Wiktionary
+│   ├── ArticlesPage.tsx     # Article checker: type a noun (in any of the 4 languages) → see correct article, gender color-coded; "Look up" / article quiz mode toggle for all 4 languages
+│   ├── SynonymsPage.tsx     # Type a word (in any of the 4 languages) → see synonyms, sourced from curated dict or Wiktionary
+│   ├── AntonymsPage.tsx     # Type a word (in any of the 4 languages) → see antonyms; structurally a near-exact mirror of SynonymsPage
 │   ├── VerbTensesPage.tsx   # Browse the 100 most common verbs per language; expandable per-tense cards + an "All Tenses" table; cross-language search bar at the top
 │   ├── PrepositionsPage.tsx # Language tabs + PrepositionQuiz — fill-in-the-blank preposition exercise
 │   └── PronominalAdverbsPage.tsx # Dutch-only: 3-level nav — pick an adverb (er/hier/daar/waar) → pick a preposition (12, matching the reference table) → <PronominalAdverbExercise>; guards with a "Dutch only" message if reached while another language is selected
@@ -52,6 +53,7 @@ src/
 │   ├── languages.ts         # LANGUAGES[], FLASHCARDS[], getFlashcardPool(); re-exports NOUN_ARTICLES, SYNONYMS
 │   ├── nounArticles.ts      # NOUN_ARTICLES[] — Dutch ~1000 nouns, others ~25 each
 │   ├── synonyms.ts          # SYNONYMS[] — 25 curated words per language
+│   ├── antonyms.ts          # ANTONYMS[] — same 25-word vocabulary per language as synonyms.ts, each paired with its opposite
 │   ├── pronominalAdverbs.ts # ADVERBS[] (er/hier/daar/waar) × PREPOSITIONS[] (12) generated into PRONOMINAL_ADVERB_EXERCISES[] (48), plus completeDutchSentence() helper
 │   ├── prepositions/        # PREPOSITION_EXERCISES[] — 120 fill-in-the-blank sentences per language (480 total), each with 2 plausible distractors
 │   │   ├── dutchPrepositions.ts / spanishPrepositions.ts / englishPrepositions.ts / germanPrepositions.ts
@@ -65,13 +67,15 @@ src/
 │       ├── labels.ts        # PERSON_LABELS (pronouns per language) + TENSE_LABELS (tense name per language) + TENSE_KEYS
 │       └── index.ts         # Re-exports VERBS (all 4 languages combined) + PERSON_LABELS/TENSE_LABELS/TENSE_KEYS
 ├── types/
-│   └── index.ts             # Language, Flashcard, NounArticle, Synonym, UserProgress, Verb, ConjugationSet, TenseKey, PrepositionExercise, AdverbId, PronominalAdverbExercise types
+│   └── index.ts             # Language, Flashcard, NounArticle, Synonym, Antonym, UserProgress, Verb, ConjugationSet, TenseKey, PrepositionExercise, AdverbId, PronominalAdverbExercise types
 ├── utils/
 │   ├── wiktionary.ts            # fetchWiktionaryWikitext() — shared fetch/timeout/parse-page logic
 │   ├── dutchGender.ts           # lookupDutchArticle() — de/het lookup for Articles
 │   ├── wiktionarySynonyms.ts    # lookupWiktionarySynonyms() — synonym lookup for Synonyms
+│   ├── wiktionaryAntonyms.ts    # lookupWiktionaryAntonyms() — antonym lookup for Antonyms, near-identical to wiktionarySynonyms.ts ({{ant|xx|...}} instead of {{syn|xx|...}})
 │   ├── wiktionaryTranslation.ts # lookupWiktionaryTranslation() — gloss/translation lookup for Flashcards
-│   └── verbSearch.ts            # findVerbSuggestions()/findEquivalentVerb() — cross-language verb search for VerbTensesPage
+│   ├── verbSearch.ts            # findVerbSuggestions()/findEquivalentVerb() — cross-language verb search for VerbTensesPage
+│   └── wordSearch.ts            # findWordSuggestions()/findEquivalentWord() — generic version of the same cross-language ranking/resolution strategy, shared by Articles, Synonyms, and Antonyms (verbs keep their own copy in verbSearch.ts rather than sharing, to avoid touching already-working code)
 ├── hooks/                   # (empty — add custom hooks here)
 ├── App.tsx                  # BrowserRouter + AppProvider + Layout + Routes
 ├── main.tsx                 # React root mount
@@ -85,11 +89,12 @@ src/
 | Route | Page | Description |
 |-------|------|-------------|
 | `/` | HomePage | Just the language picker — picking a language navigates to `/learn` |
-| `/learn` | LearnPage | Per-language menu of 5 learning sections (Flashcards/Articles/Synonyms/Verbs/Prepositions), plus a 6th "Pronominal Adverbs" card when Dutch is selected (Dashboard excluded, it's in the header); navigating here always sets `selectedLanguage` first (from Home or Dashboard) |
+| `/learn` | LearnPage | Per-language menu of 6 learning sections (Flashcards/Articles/Synonyms/Antonyms/Verbs/Prepositions), plus a 7th "Pronominal Adverbs" card when Dutch is selected (Dashboard excluded, it's in the header); navigating here always sets `selectedLanguage` first (from Home or Dashboard) |
 | `/dashboard` | DashboardPage | Streak, Total XP, Daily XP, daily goal, "Continue Learning" language picker (→ `/learn`) |
 | `/flashcards` | FlashcardsPage | 5-card grid pulled randomly from the combined dictionary pool |
-| `/articles` | ArticlesPage | Type a noun to look up its correct article; gender color-coded |
-| `/synonyms` | SynonymsPage | Type a word to look up synonyms |
+| `/articles` | ArticlesPage | Type a noun (in any of the 4 languages) to look up its correct article; gender color-coded |
+| `/synonyms` | SynonymsPage | Type a word (in any of the 4 languages) to look up synonyms |
+| `/antonyms` | AntonymsPage | Type a word (in any of the 4 languages) to look up antonyms |
 | `/verbs` | VerbTensesPage | Browse 100 common verbs per language; expand a tense card or the "All Tenses" table; search bar resolves a verb typed in any of the 4 languages to its equivalent in the selected language |
 | `/prepositions` | PrepositionsPage | Fill-in-the-blank preposition quiz, 3 options per question |
 | `/pronominal-adverbs` | PronominalAdverbsPage | Dutch-only: pick a pronominal adverb (er/hier/daar/waar), then a preposition, then fill in the split `<adverb> ... <preposition>` construction; shows a "Dutch only" guard if reached while another language is selected |
@@ -171,9 +176,9 @@ State is in-memory only (resets on refresh). Persistence (localStorage or backen
 ## Navigation & the Learn Menu
 
 - **Home (`/`)** shows only the "Choose your language" grid (4 cards from `LANGUAGES`). Clicking one calls `setSelectedLanguage(lang)` then navigates to `/learn`.
-- **Learn (`/learn`, `src/pages/LearnPage.tsx`)** shows the selected language's flag/name and a `SECTIONS` grid (defined inline in the file) linking to Flashcards, Articles, Synonyms, Verbs, and Prepositions — each card tinted with `selectedLanguage.color`. When `selectedLanguage.id === 'nl'`, a 6th card (`PRONOMINAL_SECTION`) for Pronominal Adverbs is appended. Dashboard is deliberately excluded from this list since it's reachable from the header on every page.
+- **Learn (`/learn`, `src/pages/LearnPage.tsx`)** shows the selected language's flag/name and a `SECTIONS` grid (defined inline in the file) linking to Flashcards, Articles, Synonyms, Antonyms, Verbs, and Prepositions — each card tinted with `selectedLanguage.color`. When `selectedLanguage.id === 'nl'`, a 7th card (`PRONOMINAL_SECTION`) for Pronominal Adverbs is appended. Dashboard is deliberately excluded from this list since it's reachable from the header on every page.
 - **Dashboard (`/dashboard`)** has its own "Continue Learning" grid — the same 4 language cards as Home — so a learner already on Dashboard can jump straight back into `/learn` for whichever language, without detouring through Home.
-- **Header** (`src/components/layout/Header.tsx`) shows all 6 routes as pill buttons (Dashboard/Flashcards/Articles/Synonyms/Verbs/Prepositions) next to the "Idiomatrix" logo — this is the *current* state after an earlier simplification (down to just a Dashboard link) was reverted per explicit request; the header's nav is deliberately language-agnostic and always shows the same 6 links regardless of `selectedLanguage`. Pronominal Adverbs is intentionally **not** in the header (it's Dutch-only, so it only ever appears in the Learn menu, conditionally).
+- **Header** (`src/components/layout/Header.tsx`) shows all 7 routes as pill buttons (Dashboard/Flashcards/Articles/Synonyms/Antonyms/Verbs/Prepositions) next to the "Idiomatrix" logo — this is the *current* state after an earlier simplification (down to just a Dashboard link) was reverted per explicit request; the header's nav is deliberately language-agnostic and always shows the same links regardless of `selectedLanguage`. Pronominal Adverbs is intentionally **not** in the header (it's Dutch-only, so it only ever appears in the Learn menu, conditionally).
 
 Both the Learn menu and the header have gone through multiple redesign iterations this project's history — if a screenshot or memory references a different header/home-page layout, trust the current code over that snapshot.
 
@@ -181,18 +186,19 @@ Both the Learn menu and the header have gone through multiple redesign iteration
 
 ## Wiktionary Integration
 
-All three dictionary-backed features share `src/utils/wiktionary.ts`, whose `fetchWiktionaryWikitext(word)` hits the English Wiktionary API (`en.wiktionary.org/w/api.php?action=query&...`) and returns the raw wikitext for a page, or `null` on a missing page/network error/timeout (6s `AbortController`). Each feature has its own parser on top of that shared fetch:
+All four dictionary-backed features share `src/utils/wiktionary.ts`, whose `fetchWiktionaryWikitext(word)` hits the English Wiktionary API (`en.wiktionary.org/w/api.php?action=query&...`) and returns the raw wikitext for a page, or `null` on a missing page/network error/timeout (6s `AbortController`). Each feature has its own parser on top of that shared fetch:
 
 | Util | Used by | Extracts |
 |------|---------|----------|
 | `dutchGender.ts` → `lookupDutchArticle()` | Articles (Dutch only) | `{{nl-noun\|X}}` template → `de`/`het` |
 | `wiktionarySynonyms.ts` → `lookupWiktionarySynonyms()` | Synonyms (all 4 languages) | Inline `{{syn\|xx\|...}}` template (first sense found), falling back to an older-style `===Synonyms===` section |
+| `wiktionaryAntonyms.ts` → `lookupWiktionaryAntonyms()` | Antonyms (all 4 languages) | Same shape as `wiktionarySynonyms.ts`, targeting `{{ant\|xx\|...}}` and `===Antonyms===` instead |
 | `wiktionaryTranslation.ts` → `lookupWiktionaryTranslation()` | Flashcards "add a word" (all 4 languages) | First numbered definition line (`# ...`) under the word's language section, cleaned of wikitext markup |
 
 Common pattern across all three:
 - Isolate the correct language section first (`==Dutch==`, `==Spanish==`, etc.) so results aren't cross-contaminated between languages sharing a page
 - 400ms debounce before firing the lookup from the UI
-- Results cached permanently in `localStorage` (`idiomatrix-dutch-gender`, `idiomatrix-wiktionary-synonyms`, `idiomatrix-wiktionary-translations`), including a cached "not found" sentinel so repeat misses don't re-hit the API
+- Results cached permanently in `localStorage` (`idiomatrix-dutch-gender`, `idiomatrix-wiktionary-synonyms`, `idiomatrix-wiktionary-antonyms`, `idiomatrix-wiktionary-translations`), including a cached "not found" sentinel so repeat misses don't re-hit the API
 - Known limitation: parsing is page-level, not sense-level, so a word with multiple parts of speech can occasionally surface synonyms/glosses for the wrong sense (e.g. German "schnell" the adverb vs. adjective) when the primary sense lacks inline data
 
 ---
@@ -248,9 +254,10 @@ const DUTCH_NOUNS = makeEntries('nl', 'nl', [
 - **Wiktionary match** (Dutch only, word not in curated list): shows article + gender badge + "via Wiktionary" note; lookup fires after 400ms debounce
 - **Loading state**: "Looking up…" pulse shown while Wiktionary call is in flight (Dutch only)
 - **Not found**: "check the spelling?" for Dutch (Wiktionary exhausted); "not in our dictionary yet" for other languages
-- **Prefix suggestions**: up to 5 clickable matches from curated list while typing
+- **Prefix suggestions**: up to 5 clickable matches while typing, drawn from **all 4 languages** via `findWordSuggestions()` (`src/utils/wordSearch.ts`) — each row shows the source-language flag; picking a same-language suggestion just fills the input, picking a foreign-language one resolves to its equivalent in the selected language via `findEquivalentWord()` and fills that instead (or shows a "No {language} equivalent found" message if the curated dictionary has no match — expected given the very different dictionary sizes per language, see table above)
 - **Browse all**: full grid of all curated nouns for the selected language when input is empty
-- **Language tabs**: synced with global `selectedLanguage` from AppContext; clears input on switch; Wiktionary lookup only runs for Dutch
+- **Language tabs**: synced with global `selectedLanguage` from AppContext; clears input (and any pending cross-language "not found" message) on switch; Wiktionary lookup only runs for Dutch
+- **Cross-language gloss key** (`nounGlossKey()` in `ArticlesPage.tsx`): for nl/es/de entries this is the first token of `translation` (already a plain English word); for English entries it's the noun itself, **not** `translation` — English's own `translation` field is a special composite `"es / nl / de"` cross-reference (e.g. "dog" → `"perro / hond / Hund"`), bonus data for display but not a single comparable gloss like the other 3 languages have, so matching keys off the word instead (same pattern as the Verb Tenses cross-language search, for the same underlying reason)
 
 ### Article Quiz mode
 **File:** `src/components/articles/ArticleQuiz.tsx`
@@ -292,6 +299,30 @@ export type Synonym = {
 ```
 
 25 curated words per language (adjectives, verbs, common vocabulary), each with 2-4 synonyms and a translation. Same UX pattern as Articles: curated match shows instantly with clickable synonym chips (clicking one re-searches for it); words outside the curated list fall back to a debounced Wiktionary lookup via `lookupWiktionarySynonyms()`, shown with a "via Wiktionary · no translation in our dictionary" note since Wiktionary doesn't give us a translation, only synonyms. Works for all 4 languages (unlike the Dutch-only gender fallback in Articles).
+
+Like Articles, the live-typing suggestion list is cross-language (`findWordSuggestions()`/`findEquivalentWord()` from `src/utils/wordSearch.ts`) — type "bonito" (Spanish) while browsing Dutch and the suggestion resolves to "mooi". `synonymGlossKey()` here is simpler than the Articles/Verbs equivalent: every language's `translation` field is already a plain, consistently-formatted English gloss (including English's own entries, e.g. `word: 'talk'`, `translation: 'to talk'`) — no composite-field or definitional-gloss special-casing needed, just `primaryToken(translation)` uniformly across all 4 languages.
+
+---
+
+## Antonyms (`/antonyms`)
+
+**File:** `src/pages/AntonymsPage.tsx`
+**Data:** `src/data/antonyms.ts` → exported as `ANTONYMS: Antonym[]`
+
+### Antonym type (`src/types/index.ts`)
+```ts
+export type Antonym = {
+  id: string;
+  languageId: string;
+  word: string;
+  antonyms: string[];
+  translation: string;
+};
+```
+
+`AntonymsPage.tsx` is a near-exact structural mirror of `SynonymsPage.tsx` — same curated-match/Wiktionary-fallback/prefix-suggestion/browse-all layout, same cross-language search via `wordSearch.ts`, same debounce/cache pattern, just swapping `synonyms: string[]` for `antonyms: string[]` and `lookupWiktionarySynonyms()` for `lookupWiktionaryAntonyms()`. Accent color is German clay (`#BC7F6D`) instead of Synonyms' mauve (`#9B8AA8`), so the two features stay visually distinguishable despite the identical layout.
+
+`ANTONYMS` deliberately reuses the **exact same 25-word vocabulary** as `SYNONYMS` per language (mooi/groot/klein/snel/... in Dutch, etc.) rather than an independently curated word list — a learner reviewing one feature encounters the same headwords in the other, and most pairs are each other's antonym *within the list itself* (mooi↔lelijk, groot↔klein, snel↔langzaam, blij↔verdrietig, slim↔dom, sterk↔zwak, makkelijk↔moeilijk, rijk↔arm, beginnen↔eindigen — 9 reciprocal pairs, 18 of the 25 words). The remaining 7 (boos, bang, leuk, belangrijk, praten, kijken, lopen) pair with a word outside the list (e.g. Dutch `boos` → `kalm`, not itself a headword). `translation` values are copied verbatim from `synonyms.ts` for the same word, so the two features' English glosses always agree.
 
 ---
 
@@ -458,7 +489,8 @@ Dutch guide text is **derived, not stored** — `completeDutchSentence(exercise)
 - **Named exports** for all components and pages (no default exports except `App`)
 - **Dictionary data split**: `NOUN_ARTICLES` and `SYNONYMS` each live in their own file under `src/data/` (not `languages.ts`) to keep the main data file manageable; `languages.ts` re-exports both
 - **Flashcards reuses other features' data** rather than maintaining its own large word list — `getFlashcardPool()` derives cards from `NOUN_ARTICLES` + `SYNONYMS`
-- **Wiktionary fetch logic is shared** (`utils/wiktionary.ts`) across all three lookup features; only the wikitext-parsing logic differs per feature
+- **Wiktionary fetch logic is shared** (`utils/wiktionary.ts`) across all four lookup features; only the wikitext-parsing logic differs per feature
+- **Cross-language search logic is shared** (`utils/wordSearch.ts`) across Articles/Synonyms/Antonyms — same ranking/resolution strategy as `utils/verbSearch.ts` (kept as a separate, not-shared copy for Verbs specifically, to avoid touching already-working/tested code when the word-type version was generalized out later)
 - **No auth** — user is anonymous; progress is ephemeral for now
 - **No backend** — all data is static until a backend is added
 
