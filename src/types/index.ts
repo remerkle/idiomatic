@@ -81,7 +81,7 @@ export type PronominalAdverbExercise = {
   prepositionId: string;      // e.g. "aan"
   prepositionLabel: string;   // e.g. "aan" or "mee / met"
   sentence: string;           // Dutch sentence with exactly two "___" blanks
-  blank1: { correct: string; distractors: [string, string] }; // the adverb (er/hier/daar/waar) vs. two other adverbs
-  blank2: { correct: string; distractors: [string, string] }; // the preposition vs. two other real prepositions
+  blank1: { correct: string }; // the adverb (er/hier/daar/waar) — the menu already picked it, so no distractors
+  blank2: { correct: string }; // the preposition — same
   guide: { en: string; es: string; de: string }; // guide sentence per non-Dutch language, shown upfront as a hint
 };

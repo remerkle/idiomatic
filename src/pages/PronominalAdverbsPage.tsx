@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { ADVERBS, PREPOSITIONS, PRONOMINAL_ADVERB_EXERCISES } from '../data/pronominalAdverbs';
+import { ADVERBS, PREPOSITIONS } from '../data/pronominalAdverbs';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { PronominalAdverbExercise } from '../components/pronominal/PronominalAdverbExercise';
@@ -24,10 +24,6 @@ export function PronominalAdverbsPage() {
       </div>
     );
   }
-
-  const exercise = adverbId && prepositionId
-    ? PRONOMINAL_ADVERB_EXERCISES.find(e => e.adverbId === adverbId && e.prepositionId === prepositionId) ?? null
-    : null;
 
   return (
     <div className="py-8 space-y-8">
@@ -68,8 +64,12 @@ export function PronominalAdverbsPage() {
         </div>
       )}
 
-      {exercise && (
-        <PronominalAdverbExercise exercise={exercise} onBack={() => setPrepositionId(null)} />
+      {adverbId && prepositionId && (
+        <PronominalAdverbExercise
+          adverbId={adverbId}
+          prepositionId={prepositionId}
+          onBack={() => setPrepositionId(null)}
+        />
       )}
     </div>
   );
