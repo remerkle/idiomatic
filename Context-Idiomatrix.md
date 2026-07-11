@@ -35,7 +35,7 @@ src/
 │   ├── prepositions/
 │   │   └── PrepositionQuiz.tsx # Self-contained fill-in-the-blank quiz (10 questions, score, XP), all 4 languages, used by PrepositionsPage
 │   └── pronominal/
-│       └── PronominalAdverbExercise.tsx # Two-blank fill-in-the-blank exercise for one adverb+preposition combo (e.g. waar+over), with a 4-language guide-sentence picker shown upfront as a hint; used by PronominalAdverbsPage
+│       └── PronominalAdverbExercise.tsx # 10-question session (score/progress/play again) drawn from the 50-sentence pool for one adverb+preposition combo (e.g. waar+over); each question has two single-answer blanks and a 4-language guide-sentence picker shown upfront as a hint; used by PronominalAdverbsPage
 ├── pages/
 │   ├── HomePage.tsx         # Landing page: nothing but the "Choose your language" picker grid; picking a language navigates to /learn
 │   ├── LearnPage.tsx        # Per-language section menu (Flashcards, Articles, Synonyms, Antonyms, Verbs, Prepositions, + Pronominal Adverbs when Dutch is selected) shown after picking a language on the home page or Dashboard
@@ -54,7 +54,7 @@ src/
 │   ├── nounArticles.ts      # NOUN_ARTICLES[] — Dutch ~1000 nouns, others ~25 each
 │   ├── synonyms.ts          # SYNONYMS[] — 25 curated words per language
 │   ├── antonyms.ts          # ANTONYMS[] — same 25-word vocabulary per language as synonyms.ts, each paired with its opposite
-│   ├── pronominalAdverbs.ts # ADVERBS[] (er/hier/daar/waar) × PREPOSITIONS[] (12) generated into PRONOMINAL_ADVERB_EXERCISES[] (48), plus completeDutchSentence() helper
+│   ├── pronominalAdverbs.ts # Conjugation/modifier generator: ADVERBS[] (4) × PREPOSITIONS[] (12) × 6 persons × 9 modifiers → PRONOMINAL_ADVERB_EXERCISES[] (2,400), plus completeDutchSentence() helper
 │   ├── prepositions/        # PREPOSITION_EXERCISES[] — 120 fill-in-the-blank sentences per language (480 total), each with 2 plausible distractors
 │   │   ├── dutchPrepositions.ts / spanishPrepositions.ts / englishPrepositions.ts / germanPrepositions.ts
 │   │   ├── shared.ts        # Entry tuple type + makeEntries() helper shared by all 4 language files
@@ -97,7 +97,7 @@ src/
 | `/antonyms` | AntonymsPage | Type a word (in any of the 4 languages) to look up antonyms |
 | `/verbs` | VerbTensesPage | Browse 100 common verbs per language; expand a tense card or the "All Tenses" table; search bar resolves a verb typed in any of the 4 languages to its equivalent in the selected language |
 | `/prepositions` | PrepositionsPage | Fill-in-the-blank preposition quiz, 3 options per question |
-| `/pronominal-adverbs` | PronominalAdverbsPage | Dutch-only: pick a pronominal adverb (er/hier/daar/waar), then a preposition, then fill in the split `<adverb> ... <preposition>` construction; shows a "Dutch only" guard if reached while another language is selected |
+| `/pronominal-adverbs` | PronominalAdverbsPage | Dutch-only: pick a pronominal adverb (er/hier/daar/waar), then a preposition, then a 10-question session (from a 50-sentence pool) filling in the split `<adverb> ... <preposition>` construction; shows a "Dutch only" guard if reached while another language is selected |
 
 Lessons and Quiz pages/routes/data existed in the original scaffold and were removed (unused placeholders) — see git history if that flow needs reviving.
 
@@ -446,10 +446,10 @@ Each language started with 20 hand-written exercises, then a dedicated research 
 
 ## Pronominal Adverbs & Prepositions (`/pronominal-adverbs`, Dutch only)
 
-**Files:** `src/pages/PronominalAdverbsPage.tsx` + `src/components/pronominal/PronominalAdverbExercise.tsx`
-**Data:** `src/data/pronominalAdverbs.ts` → `ADVERBS`, `PREPOSITIONS`, `PRONOMINAL_ADVERB_EXERCISES: PronominalAdverbExercise[]` (48, generated) + `completeDutchSentence()` helper
+**Files:** `src/pages/PronominalAdverbsPage.tsx` + `src/components/pronominal/PronominalAdverbExercise.tsx` (the latter is a 10-question **session** component, not a single exercise — see below)
+**Data:** `src/data/pronominalAdverbs.ts` → `ADVERBS`, `PREPOSITIONS`, `PRONOMINAL_ADVERB_EXERCISES: PronominalAdverbExercise[]` (**2,400**, generated: 4 adverbs × 12 prepositions × 50 sentence variants) + `completeDutchSentence()` helper
 
-The only Dutch-specific grammar feature in the app (every other feature works across all 4 languages). Covers Dutch's pronominal adverbs — `er` (unstressed "it/them"), `hier` ("this"), `daar` ("that"), and `waar` (interrogative "what/which") — each of which combines with a fixed preposition (eraan, hieraan, daaraan, waaraan, ...; ermee, hiermee, daarmee, waarmee; ...) and can split from that preposition elsewhere in the clause, e.g. "houden van" ("to like") → "Ik hou er veel van" ("I like it a lot"). This replaced an earlier version of the feature that only covered `er` combined with specific verbs (houden van, denken aan, etc.); the current version instead covers all 4 adverbs crossed with the 12 prepositions from the reference table the user supplied (aan, achter, bij, door, in, mee/met, naar, om, onder, op, over, tegen) — a full grammar-topic drill rather than a curated vocabulary list.
+The only Dutch-specific grammar feature in the app (every other feature works across all 4 languages). Covers Dutch's pronominal adverbs — `er` (unstressed "it/them"), `hier` ("this"), `daar` ("that"), and `waar` (interrogative "what/which") — each of which combines with a fixed preposition (eraan, hieraan, daaraan, waaraan, ...; ermee, hiermee, daarmee, waarmee; ...) and can split from that preposition elsewhere in the clause, e.g. "houden van" ("to like") → "Ik hou er veel van" ("I like it a lot").
 
 ### PronominalAdverbExercise type (`src/types/index.ts`)
 ```ts
@@ -461,25 +461,31 @@ export type PronominalAdverbExercise = {
   prepositionId: string;      // e.g. "aan"
   prepositionLabel: string;   // e.g. "aan" or "mee / met"
   sentence: string;           // Dutch sentence with exactly two "___" blanks
-  blank1: { correct: string; distractors: [string, string] }; // the adverb vs. two other adverbs
-  blank2: { correct: string; distractors: [string, string] }; // the preposition vs. two other real prepositions
-  guide: { en: string; es: string; de: string }; // guide sentence per non-Dutch language, shown upfront as a hint
+  blank1: { correct: string }; // the adverb — no distractors, see "UI behavior" below
+  blank2: { correct: string }; // the preposition — same
+  guide: { en: string; es: string; de: string }; // guide sentence, shown upfront as a hint
 };
 ```
 
 Dutch guide text is **derived, not stored** — `completeDutchSentence(exercise)` fills the sentence's own two blanks with its own answer key, so there's no separate Dutch string that could drift out of sync with the answer key.
 
-### Content design — generated, not hand-authored per entry
-`src/data/pronominalAdverbs.ts` defines 12 `PrepFamily` objects (one per preposition), each with a **declarative** sentence template (shared by `er`/`hier`/`daar` — only which adverb is correct changes; the guide sentence disambiguates which one) and a **question** template (used for `waar`, since it's inherently interrogative and can't slot into a declarative clause the way the other three can). `PRONOMINAL_ADVERB_EXERCISES` is then `ADVERBS.flatMap(adverb => PREP_FAMILIES.map(family => ...))` — a 4×12 cross-product generated at module load, not 48 hand-written object literals. This is a deliberate departure from this repo's usual "flat array of curated entries" convention (see `Key Decisions & Conventions`), justified because the content genuinely factors into two regular, independent axes (adverb × preposition) rather than being a heterogeneous curated list.
+### Content design — generated from a conjugation engine, not hand-authored per entry
+50 hand-written sentences × 48 combos would be 2,400 individually-authored sentences — not practical to write or verify by hand. Instead, `src/data/pronominalAdverbs.ts` builds a small **grammar engine**:
 
-`blank1` distractors are the other 2-3 adverbs (`ADVERB_DISTRACTORS`, e.g. correct=`er` → distractors `hier`/`daar`); `blank2` distractors are 2 other real prepositions from the same 12-item set (never an outside preposition), so wrong answers stay plausible Dutch, not nonsense. Guide sentences intentionally sometimes read identically for `er` and `daar` in German specifically (e.g. both → "Ich denke oft daran.") — German's own da-/wo- compound system doesn't distinguish "it" from "that" the way Dutch's er/daar split does, so forcing an artificial distinction there would be inaccurate.
+- `VERBS`: present-tense conjugation tables (one entry per person `ik/je/hij/wij/jullie/zij`) for the 12 base verbs used across the preposition families (denken, staan, kunnen, zijn, geloven, kijken, geven, lijden, wachten, praten, vechten). `questionConj()` derives each verb's inverted-question form from its declarative form, applying the real Dutch rule that a verb loses its regular *-t* ending when the subject "je" is inverted to follow it ("je denkt" → "denk je") — except the modal "kunnen", which has its own further-contracted irregular form ("kun je", not "denk"-pattern "kan je") and is special-cased.
+- `PREP_FAMILIES`: 12 entries (one per preposition), each with **9 interchangeable modifier words** (degree/frequency synonyms appropriate to that slot — e.g. "aan" uses vaak/soms/regelmatig/wel eens/.../constant; "achter" uses volledig/helemaal/altijd/.../volmondig) and a `build()` function producing the blanked sentence for a given person + question-or-declarative + modifier. 6 persons × 9 modifiers = 54 combinations per (adverb, preposition) pair, trimmed to 50.
+- `simpleBuilder(verb, opts)` covers 10 of the 12 families with the shared shape `"{Pron} {verb} ___ {modifier}[ mid] ___[ tail]."` / `"___ {verb} {pron} {modifier}[ mid] ___[ tail]?"` — `mid` inserts a fixed word **before** the final blank (the "mee" family's "blij": Dutch wants "erg blij mee", not "erg mee blij"), `tail` inserts one **after** it (the "door" family's past participle "overtuigd", which belongs at the very end of the clause). Only the reflexive "bij" family (modal "kunnen" + reflexive pronoun agreement `me/je/zich/ons/je/zich`) needs a fully bespoke builder.
+- `PRONOMINAL_ADVERB_EXERCISES = ADVERBS.flatMap(adverb => PREP_FAMILIES.flatMap(family => [...50 variants]))` — generated at module load, not a literal array.
+- All 4 adverb/12 preposition/several-person spot-checks were verified by hand for grammatical correctness during development (e.g. "Hij kan zich er bijna niets bij voorstellen.", "Jullie zijn hier niet snel door overtuigd.", "Je bent daar uitermate blij mee.") — see git history for the specific checks if a generated sentence ever looks wrong.
+- **Known trade-off**: the `guide` (en/es/de hint) is **one representative sentence per (adverb, preposition) combo**, reused across all 50 person/modifier variants — it is *not* individually translated per variant (that would mean ~7,200 translated strings). This means the guide's grammatical subject sometimes won't match the specific Dutch sentence shown (e.g. guide says "They never talk about it" while the displayed sentence uses "wij"/"we"). This was a deliberate, disclosed scope decision (translating all 2,400 sentences into 3 languages each was judged impractical) — the guide's job is to convey *which blank is which* (adverb vs. preposition, and roughly what the sentence means), not to be a word-for-word translation of that exact random variant.
 
-### UI behavior
+### UI behavior — now a 10-question session, not a single exercise
 - Route guards on `selectedLanguage.id !== 'nl'`, rendering a "Dutch only" Card instead of the exercise — necessary because the route is reachable independent of the Learn menu's conditional card (direct URL, browser back/forward)
-- Three-level navigation, all local `useState` on `PronominalAdverbsPage`: adverb menu (4 cards) → preposition menu (12 cards, matching the reference table) → `<PronominalAdverbExercise>`. No subtitle/intro paragraph under the page's `<h1>` — the guide sentence inside each exercise carries that explanatory weight instead
-- Both blanks are independent 3-button multiple-choice rows (reuses `PrepositionQuiz`'s exact color states — green once correct, red once wrong-selected, muted once wrong-unselected); this keeps "fill in the blank" consistent with the rest of the app's established idiom of multiple-choice-into-a-blank rather than free-text input
-- **+5 XP** (`XP_PER_CORRECT`), awarded once, only when both blanks are correct (not per-blank) — guarded by an `xpAwarded` flag so re-renders can't double-award
-- The guide-sentence panel renders **at the top of the exercise, before either blank is answered** — it's meant to be used as a hint while attempting the blanks, not a reveal-after-answering confirmation (this was a deliberate change from the panel's original gated/reveal-after-both-blanks behavior). A 4-flag picker lets the learner choose which of the 4 app languages the guide displays in — defaults to `selectedLanguage.id !== 'nl' ? selectedLanguage.id : 'en'` (in practice always `'en'`, since the page-level guard means `selectedLanguage` is always Dutch here) — purely local component state, does not touch the global `selectedLanguage`/`setSelectedLanguage`
+- Three-level navigation, all local `useState` on `PronominalAdverbsPage`: adverb menu (4 cards) → preposition menu (12 cards, matching the reference table) → `<PronominalAdverbExercise adverbId prepositionId onBack>`. No subtitle/intro paragraph under the page's `<h1>` — the guide sentence inside each exercise carries that explanatory weight instead
+- The exercise component itself draws a **random 10** from the matching 50-item pool (`SESSION_SIZE`, Fisher-Yates shuffle) each time it mounts or the adverb/preposition combo changes — same pattern as `PrepositionQuiz`/`ArticleQuiz`, with a `ProgressBar`, "Sentence N of 10" counter, and an end screen (score, percentage `Badge`, "Play again" to redraw a fresh 10, or back out to the preposition menu)
+- Each blank shows **only its correct answer as a single button** (no multiple-choice distractors) — the adverb and preposition were already chosen via the two menus that led into the session, so re-quizzing that same choice with wrong-answer options would be redundant; clicking fills in and colors the blank green
+- **+5 XP** per sentence, awarded once both blanks in the current question are filled (tracked via a `bothAnswered` boolean transitioning false→true, guarding against double-award on re-render) — a full 10-sentence session is worth 50 XP
+- The guide-sentence panel renders **at the top of each question, before either blank is answered** — used as a hint while filling in the blanks, not a reveal-after-answering confirmation. A 4-flag picker lets the learner choose which of the 4 app languages the guide displays in — defaults to `selectedLanguage.id !== 'nl' ? selectedLanguage.id : 'en'` (in practice always `'en'`, since the page-level guard means `selectedLanguage` is always Dutch here), persists across the whole session (not reset per question), and is purely local component state — does not touch the global `selectedLanguage`/`setSelectedLanguage`
 
 ---
 
@@ -503,6 +509,11 @@ npm run dev     # start dev server at http://localhost:5173
 npm run build   # production build
 npm run preview # preview production build
 ```
+
+### ⚠️ Type-checking gotcha: plain `tsc --noEmit` is a silent no-op here
+This project uses **TypeScript project references** — the root `tsconfig.json` has `"files": []` and only `references` to `tsconfig.app.json`/`tsconfig.node.json`. Running `npx tsc --noEmit` directly checks the (empty) root project and reports **zero errors regardless of what's actually wrong in `src/`** — it silently doesn't check anything. This was discovered mid-session after several rounds of "clean" `tsc --noEmit` output turned out to be checking nothing at all.
+
+**Always type-check with:** `npx tsc -b --noEmit` (or `npx tsc -b --force --noEmit` for a guaranteed-fresh check, bypassing incremental `.tsbuildinfo` cache). This matches the first step of `npm run build` (`tsc -b && vite build`) and actually compiles `src/` under `tsconfig.app.json`.
 
 ---
 
