@@ -124,9 +124,90 @@ const GERMAN_SYNONYMS = makeEntries('de', 'de', [
   ['beenden',   ['aufhören', 'abschließen'],                                               'to end'],
 ]);
 
+// Nouns pulled in from the Articles dictionary (src/data/nounArticles.ts) that have a
+// genuine near-synonym — most concrete nouns there (dog, table, chair, apple...) don't,
+// so this is a curated subset of the abstract/concept nouns, not an exhaustive merge of
+// all ~1000 Dutch entries. See Context-Idiomatrix.md for the scope decision.
+const DUTCH_NOUN_SYNONYMS = makeEntries('nl', 'nl-n', [
+  ['probleem',     ['kwestie', 'moeilijkheid'],       'problem'],
+  ['resultaat',    ['uitkomst', 'gevolg'],            'result'],
+  ['droom',        ['wens', 'fantasie'],              'dream'],
+  ['hoop',         ['verwachting'],                    'hope'],
+  ['angst',        ['vrees', 'schrik'],                'fear / anxiety'],
+  ['liefde',       ['genegenheid'],                    'love'],
+  ['vreugde',      ['blijdschap', 'plezier'],          'joy'],
+  ['verdriet',     ['droefheid', 'smart'],             'sadness / grief'],
+  ['woede',        ['boosheid', 'razernij'],           'anger'],
+  ['macht',        ['invloed'],                        'power'],
+  ['kracht',       ['sterkte'],                        'strength / force'],
+  ['mening',       ['opvatting', 'standpunt'],         'opinion'],
+  ['kans',         ['gelegenheid', 'mogelijkheid'],    'chance / opportunity'],
+  ['reden',        ['oorzaak', 'motief'],               'reason'],
+  ['oorzaak',      ['reden', 'aanleiding'],             'cause'],
+  ['keuze',        ['optie', 'selectie'],               'choice'],
+  ['verschil',     ['onderscheid'],                     'difference'],
+  ['ervaring',     ['belevenis'],                       'experience'],
+  ['gewoonte',     ['gebruik'],                         'habit / custom'],
+  ['mogelijkheid', ['kans', 'gelegenheid'],             'possibility'],
+  ['gelegenheid',  ['kans', 'mogelijkheid'],            'occasion / opportunity'],
+  ['idee',         ['gedachte', 'inval'],               'idea'],
+  ['geheim',       ['mysterie'],                        'secret'],
+  ['geloof',       ['overtuiging'],                     'belief / faith'],
+  ['gerucht',      ['praatje'],                         'rumor'],
+  ['gesprek',      ['dialoog', 'praatje'],               'conversation'],
+  ['onderwerp',    ['thema', 'kwestie'],                 'subject / topic'],
+  ['thema',        ['onderwerp'],                        'theme / topic'],
+  ['plan',         ['voornemen', 'opzet'],                'plan'],
+  ['voorstel',     ['plan', 'idee'],                      'proposal'],
+  ['karakter',     ['aard', 'persoonlijkheid'],            'character'],
+  ['kenmerk',      ['eigenschap'],                         'characteristic'],
+  ['talent',       ['gave', 'aanleg'],                      'talent'],
+  ['vermogen',     ['kunde', 'capaciteit'],                 'ability / wealth'],
+  ['wonder',       ['mirakel'],                              'miracle / wonder'],
+  ['succes',       ['triomf'],                                'success'],
+  ['gedrag',       ['houding', 'optreden'],                   'behavior'],
+  ['geheugen',     ['herinnering'],                            'memory'],
+  ['herinnering',  ['geheugen'],                                'memory / recollection'],
+  ['vraag',        ['kwestie'],                                 'question'],
+  ['structuur',    ['opbouw', 'indeling'],                       'structure'],
+  ['methode',      ['manier', 'werkwijze'],                       'method'],
+  ['techniek',     ['methode', 'werkwijze'],                       'technique / technology'],
+  ['uitdaging',    ['beproeving'],                                  'challenge'],
+  ['strategie',    ['tactiek', 'aanpak'],                            'strategy'],
+  ['tactiek',      ['strategie'],                                     'tactic'],
+  ['aanpak',       ['methode', 'strategie'],                           'approach'],
+  ['ontwikkeling', ['groei', 'vooruitgang'],                            'development'],
+  ['groei',        ['ontwikkeling', 'toename'],                          'growth'],
+  ['verandering',  ['wijziging'],                                         'change'],
+  ['verbetering',  ['vooruitgang'],                                        'improvement'],
+  ['gevoel',       ['emotie', 'sensatie'],                                  'feeling'],
+  ['emotie',       ['gevoel'],                                               'emotion'],
+  ['passie',       ['hartstocht'],                                            'passion'],
+  ['vertrouwen',   ['geloof', 'zekerheid'],                                    'trust / confidence'],
+  ['zekerheid',    ['vertrouwen'],                                              'certainty'],
+  ['waarde',       ['belang'],                                                   'value'],
+  ['belang',       ['waarde', 'gewicht'],                                         'importance / interest'],
+]);
+
+// Small es/en/de Articles lists are almost entirely concrete everyday objects (dog,
+// table, apple...) with no real synonyms — "country/nation" is the one clean match.
+const SPANISH_NOUN_SYNONYMS = makeEntries('es', 'es-n', [
+  ['país', ['nación'], 'country'],
+]);
+const ENGLISH_NOUN_SYNONYMS = makeEntries('en', 'en-n', [
+  ['country', ['nation'], 'country'],
+]);
+const GERMAN_NOUN_SYNONYMS = makeEntries('de', 'de-n', [
+  ['Land', ['Nation', 'Staat'], 'country'],
+]);
+
 export const SYNONYMS: Synonym[] = [
   ...DUTCH_SYNONYMS,
   ...SPANISH_SYNONYMS,
   ...ENGLISH_SYNONYMS,
   ...GERMAN_SYNONYMS,
+  ...DUTCH_NOUN_SYNONYMS,
+  ...SPANISH_NOUN_SYNONYMS,
+  ...ENGLISH_NOUN_SYNONYMS,
+  ...GERMAN_NOUN_SYNONYMS,
 ];
