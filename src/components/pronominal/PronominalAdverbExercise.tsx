@@ -130,7 +130,7 @@ export function PronominalAdverbExercise({
             </button>
           ))}
         </div>
-        <p className="text-center font-semibold text-[#1B1A17]">{guideText}</p>
+        <p className="text-center font-serif text-xl font-semibold text-[#1B1A17] leading-relaxed">{guideText}</p>
       </Card>
 
       <Card className="p-8 text-center space-y-6">

@@ -42,6 +42,7 @@ export function Header() {
               { to: '/antonyms',  label: 'Antonyms' },
               { to: '/verbs',     label: 'Verbs' },
               { to: '/prepositions', label: 'Prepositions' },
+              { to: '/pronominal-adverbs', label: 'Pronominal Adverbs' },
             ].map(({ to, label }) => (
               <NavLink
                 key={to}
